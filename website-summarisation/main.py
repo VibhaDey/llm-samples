@@ -1,4 +1,6 @@
+import time
 import requests
+import gradio as gr
 from website import Website
 
 system_prompt = "You are an assistant that analyzes the contents of a website \
@@ -33,9 +35,23 @@ def summarize_with_ollama_chat(websiteUrl):
     return response.json()["message"]["content"]
 
 def display_summary(url):
+    # Simulate a "loading..." placeholder
+    yield "⏳ Fetching and summarizing... Please wait..."
+    time.sleep(0.5)  # small pause so the placeholder shows before actual work
+
+    # Actual work
     summary = summarize_with_ollama_chat(url)
-    print(summary)
+    yield summary
+    
+
+# Gradio interface
+iface = gr.Interface(
+    fn=display_summary,
+    inputs=gr.Textbox(label="Enter website URL"),
+    outputs=gr.Markdown(label="Summary"),
+    flagging_mode="never"
+)
 
 if __name__ == "__main__":
-    display_summary("https://www.geeksforgeeks.org/artificial-intelligence/large-language-model-llm/")
+    iface.launch()
 
